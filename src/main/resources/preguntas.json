@@ -1,0 +1,51 @@
+{
+  "preguntas": [
+    {"enunciado": "¿Cuántos lados tiene un octágono?", "opciones": ["6","7","8","9"], "respuesta": "8", "modo": "matematicas", "nivel": "facil"},
+    {"enunciado": "¿Cuántos grados tiene un ángulo recto?", "opciones": ["45","60","90","180"], "respuesta": "90", "modo": "matematicas", "nivel": "facil"},
+    {"enunciado": "¿Cuánto es 144 dividido entre 12?", "opciones": ["10","11","12","13"], "respuesta": "12", "modo": "matematicas", "nivel": "facil"},
+    {"enunciado": "¿Cuántos lados tiene un triángulo?", "opciones": ["2","3","4","5"], "respuesta": "3", "modo": "matematicas", "nivel": "facil"},
+    {"enunciado": "¿Cuánto es 8 × 7?", "opciones": ["54","56","58","60"], "respuesta": "56", "modo": "matematicas", "nivel": "facil"},
+
+    {"enunciado": "¿Cuántos grados tiene un triángulo equilátero en cada ángulo?", "opciones": ["45","60","90","120"], "respuesta": "60", "modo": "matematicas", "nivel": "intermedio"},
+    {"enunciado": "¿Cuántos grados suman los ángulos internos de un cuadrilátero?", "opciones": ["180","270","360","450"], "respuesta": "360", "modo": "matematicas", "nivel": "intermedio"},
+    {"enunciado": "¿Cuál es el valor de π aproximado?", "opciones": ["2.14","3.14","4.14","5.14"], "respuesta": "3.14", "modo": "matematicas", "nivel": "intermedio"},
+    {"enunciado": "¿Cuánto es 2 elevado a la potencia 8?", "opciones": ["128","256","512","1024"], "respuesta": "256", "modo": "matematicas", "nivel": "intermedio"},
+    {"enunciado": "¿Cuál es el mínimo común múltiplo de 4 y 6?", "opciones": ["8","10","12","14"], "respuesta": "12", "modo": "matematicas", "nivel": "intermedio"},
+
+    {"enunciado": "¿Cuál es la derivada de f(x) = sen(x)?", "opciones": ["-cos(x)","cos(x)","-sen(x)","tan(x)"], "respuesta": "cos(x)", "modo": "matematicas", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es la derivada de f(x) = eˣ?", "opciones": ["eˣ","xeˣ","eˣ⁻¹","1/eˣ"], "respuesta": "eˣ", "modo": "matematicas", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es la integral de cos(x)?", "opciones": ["-sen(x)+C","sen(x)+C","tan(x)+C","-cos(x)+C"], "respuesta": "sen(x)+C", "modo": "matematicas", "nivel": "leyenda"},
+    {"enunciado": "¿Cuánto es el límite de sen(x)/x cuando x→0?", "opciones": ["0","∞","1","-1"], "respuesta": "1", "modo": "matematicas", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es la derivada de f(x) = ln(x)?", "opciones": ["ln(x)","1/x","x","eˣ"], "respuesta": "1/x", "modo": "matematicas", "nivel": "leyenda"},
+
+    {"enunciado": "Si tienes 3 monedas de 25 centavos, ¿cuánto dinero tienes?", "opciones": ["50¢","65¢","75¢","80¢"], "respuesta": "75¢", "modo": "acertijos", "nivel": "facil"},
+    {"enunciado": "Un reloj marca las 3:00. ¿Cuántos grados forma el minutero con el horario?", "opciones": ["60°","75°","90°","120°"], "respuesta": "90°", "modo": "acertijos", "nivel": "facil"},
+    {"enunciado": "¿Cuántos huevos hay en 3 docenas?", "opciones": ["24","30","36","42"], "respuesta": "36", "modo": "acertijos", "nivel": "facil"},
+    {"enunciado": "Si hoy es martes, ¿qué día será en 10 días?", "opciones": ["Lunes","Martes","Miércoles","Jueves"], "respuesta": "Jueves", "modo": "acertijos", "nivel": "facil"},
+    {"enunciado": "Tienes $10 y gastas $3.50, ¿cuánto te queda?", "opciones": ["$5.50","$6.00","$6.50","$7.00"], "respuesta": "$6.50", "modo": "acertijos", "nivel": "facil"},
+
+    {"enunciado": "Un tren sale a las 8:45 y llega a las 11:15. ¿Cuánto duró el viaje?", "opciones": ["2h 15min","2h 30min","2h 45min","3h"], "respuesta": "2h 30min", "modo": "acertijos", "nivel": "intermedio"},
+    {"enunciado": "Si el 30% de un número es 60, ¿cuál es el número?", "opciones": ["180","200","210","220"], "respuesta": "200", "modo": "acertijos", "nivel": "intermedio"},
+    {"enunciado": "Un producto costaba $80 y subió un 15%. ¿Cuánto cuesta ahora?", "opciones": ["$88","$90","$92","$96"], "respuesta": "$92", "modo": "acertijos", "nivel": "intermedio"},
+    {"enunciado": "¿Cuántos minutos hay en 2 horas y 45 minutos?", "opciones": ["145","155","165","175"], "respuesta": "165", "modo": "acertijos", "nivel": "intermedio"},
+    {"enunciado": "Un cuarto de 12 metros cuadrados tiene 3m de ancho. ¿Cuánto mide de largo?", "opciones": ["3m","4m","5m","6m"], "respuesta": "4m", "modo": "acertijos", "nivel": "intermedio"},
+
+    {"enunciado": "Si f(x) = x² + 3x, ¿cuánto es f(4)?", "opciones": ["26","28","30","32"], "respuesta": "28", "modo": "acertijos", "nivel": "leyenda"},
+    {"enunciado": "¿Cuántas soluciones reales tiene x² + 1 = 0?", "opciones": ["0","1","2","Infinitas"], "respuesta": "0", "modo": "acertijos", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es el determinante de la matriz [[2,1],[4,3]]?", "opciones": ["1","2","3","4"], "respuesta": "2", "modo": "acertijos", "nivel": "leyenda"},
+    {"enunciado": "Si log₂(x) = 3, ¿cuánto es x?", "opciones": ["6","8","9","12"], "respuesta": "8", "modo": "acertijos", "nivel": "leyenda"},
+    {"enunciado": "¿Cuánto es sen(30°)?", "opciones": ["0.25","0.5","0.75","1"], "respuesta": "0.5", "modo": "acertijos", "nivel": "leyenda"},
+
+    {"enunciado": "¿Cuál es el siguiente número? 1, 1, 2, 3, 5, 8, __", "opciones": ["11","12","13","14"], "respuesta": "13", "modo": "secuencias", "nivel": "facil"},
+    {"enunciado": "¿Cuál es el siguiente número? 2, 4, 8, 16, __", "opciones": ["24","28","30","32"], "respuesta": "32", "modo": "secuencias", "nivel": "facil"},
+    {"enunciado": "¿Cuál es el siguiente número? 10, 8, 6, 4, __", "opciones": ["0","1","2","3"], "respuesta": "2", "modo": "secuencias", "nivel": "facil"},
+
+    {"enunciado": "¿Cuál es el siguiente número? 1, 4, 9, 16, 25, __", "opciones": ["30","34","36","40"], "respuesta": "36", "modo": "secuencias", "nivel": "intermedio"},
+    {"enunciado": "¿Cuál es el siguiente número? 3, 6, 12, 24, __", "opciones": ["36","42","48","52"], "respuesta": "48", "modo": "secuencias", "nivel": "intermedio"},
+    {"enunciado": "¿Cuál es el siguiente número? 100, 50, 25, 12.5, __", "opciones": ["5","6","6.25","7"], "respuesta": "6.25", "modo": "secuencias", "nivel": "intermedio"},
+
+    {"enunciado": "¿Cuál es el siguiente número? 1, 8, 27, 64, __", "opciones": ["100","115","125","135"], "respuesta": "125", "modo": "secuencias", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es el siguiente número? 2, 3, 5, 7, 11, 13, __", "opciones": ["15","16","17","18"], "respuesta": "17", "modo": "secuencias", "nivel": "leyenda"},
+    {"enunciado": "¿Cuál es el siguiente número? 0, 1, 3, 6, 10, 15, __", "opciones": ["18","20","21","24"], "respuesta": "21", "modo": "secuencias", "nivel": "leyenda"}
+  ]
+}

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Quiz de Matemáticas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          font-family: 'Segoe UI', sans-serif;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          background: #1a1a2e;
+          overflow: hidden;
+        }
+
+        .bg-symbols {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
+        }
+
+        .symbol {
+          position: absolute;
+          color: rgba(0,255,255,0.5);
+          text-shadow: 0 0 10px cyan;
+          animation: flotar linear infinite;
+          user-select: none;
+        }
+
+        @keyframes flotar {
+          0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .card {
+          position: relative;
+          z-index: 1;
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 24px;
+          padding: 2rem;
+          max-width: 520px;
+          width: 100%;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+
+        .header {
+          text-align: center;
+          margin-bottom: 1.2rem;
+        }
+
+        .header h1 { font-size: 22px; color: #fff; font-weight: 700; }
+        .header .modo-tag {
+          display: inline-block;
+          margin-top: 6px;
+          font-size: 12px;
+          background: rgba(102,126,234,0.3);
+          color: #a0b4ff;
+          padding: 3px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(102,126,234,0.4);
+        }
+
+        /* ── Stats ── */
+        .stats {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 1rem;
+        }
+
+        .stat-box {
+          flex: 1;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 10px;
+          text-align: center;
+        }
+
+        .stat-num   { font-size: 22px; font-weight: 700; color: #a0b4ff; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        /* ── Barra de progreso ── */
+        .progreso-label {
+          display: flex;
+          justify-content: space-between;
+          font-size: 12px;
+          color: rgba(255,255,255,0.4);
+          margin-bottom: 6px;
+        }
+
+        .barra-fondo {
+          background: rgba(255,255,255,0.1);
+          border-radius: 999px;
+          height: 8px;
+          margin-bottom: 1.2rem;
+          overflow: hidden;
+        }
+
+        .barra-relleno {
+          height: 100%;
+          border-radius: 999px;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          transition: width 0.4s ease;
+        }
+
+        /* ── Mensaje ── */
+        .mensaje {
+          text-align: center;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 10px;
+          border-radius: 10px;
+          margin-bottom: 1rem;
+          min-height: 40px;
+        }
+
+        .correcto   { background: rgba(76,175,80,0.2);  color: #81c784; border: 1px solid rgba(76,175,80,0.3); }
+        .incorrecto { background: rgba(244,67,54,0.2);  color: #e57373; border: 1px solid rgba(244,67,54,0.3); }
+        .vacio      { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
+
+        /* ── Pregunta ── */
+        .pregunta {
+          font-size: 20px;
+          font-weight: 700;
+          color: #fff;
+          text-align: center;
+          margin-bottom: 1.2rem;
+          padding: 1.2rem;
+          background: rgba(102,126,234,0.15);
+          border-radius: 14px;
+          border: 1px solid rgba(102,126,234,0.25);
+          white-space: pre-line;
+          line-height: 1.5;
+        }
+
+        /* ── Opciones ── */
+        .opciones {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 1rem;
+        }
+
+        .opciones button {
+          padding: 16px;
+          border: 1.5px solid rgba(255,255,255,0.12);
+          border-radius: 12px;
+          background: rgba(255,255,255,0.07);
+          font-size: 18px;
+          font-weight: 700;
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .opciones button:hover {
+          background: rgba(102,126,234,0.35);
+          border-color: rgba(102,126,234,0.6);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(102,126,234,0.25);
+        }
+
+        /* ── Resultado final ── */
+        .resultado {
+          text-align: center;
+          padding: 1rem 0;
+        }
+
+        .resultado .emoji   { font-size: 52px; margin-bottom: 0.5rem; }
+        .resultado .puntaje { font-size: 56px; font-weight: 700; color: #a0b4ff; }
+        .resultado .sub     { font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 6px; margin-bottom: 1.5rem; }
+
+        .btn-reiniciar {
+          display: inline-block;
+          padding: 13px 30px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: none;
+          margin: 0 6px;
+        }
+
+        .btn-reiniciar:hover { opacity: 0.85; }
+
+        .btn-menu {
+          display: inline-block;
+          padding: 13px 30px;
+          background: rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: none;
+          margin: 0 6px;
+        }
+
+        .cambiar-modo {
+          text-align: center;
+          margin-top: 1rem;
+        }
+
+        .cambiar-modo a {
+          font-size: 12px;
+          color: rgba(255,255,255,0.3);
+          text-decoration: none;
+        }
+
+        .cambiar-modo a:hover { color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+
+<div class="bg-symbols" id="bg"></div>
+
+<div class="card">
+
+    <div class="header">
+        <h1>🧮 Quiz de Matemáticas</h1>
+        <span class="modo-tag" th:text="'Modo: ' + ${modo}"></span>
+        <span class="modo-tag"
+              th:style="${nivel == 'facil'} ? 'background:rgba(76,175,80,0.2); color:#81c784; border-color:rgba(76,175,80,0.3)' :
+                  (${nivel == 'intermedio'} ? 'background:rgba(255,193,7,0.2); color:#ffd54f; border-color:rgba(255,193,7,0.3)' :
+                  'background:rgba(244,67,54,0.2); color:#e57373; border-color:rgba(244,67,54,0.3)')"
+              th:text="${nivel == 'facil'} ? '🌱 Fácil' : (${nivel == 'intermedio'} ? '⚡ Intermedio' : '💀 Leyenda')">
+  </span>
+    </div>
+    <!-- Cronómetro (solo si hay tiempo) -->
+    <div th:if="${tiempo > 0 && !finalizado}" id="cronometro-wrap" style="text-align:center; margin-bottom: 1rem;">
+        <div id="cronometro"
+             style="font-size:32px; font-weight:700; color:#a0b4ff; letter-spacing:2px;">
+        </div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px;">
+            segundos restantes
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-num" th:text="${correctas}">0</div>
+            <div class="stat-label">Correctas</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" th:text="${incorrectas}">0</div>
+            <div class="stat-label">Incorrectas</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" th:text="${restantes}">10</div>
+            <div class="stat-label">Restantes</div>
+        </div>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progreso-label">
+        <span th:text="'Pregunta ' + ${numeroPregunta} + ' de ' + ${total}"></span>
+        <span th:text="${progresoPct} + '%'"></span>
+    </div>
+    <div class="barra-fondo">
+        <div class="barra-relleno" th:style="'width:' + ${progresoPct} + '%'"></div>
+    </div>
+
+    <!-- RESULTADO FINAL -->
+    <div th:if="${finalizado}" class="resultado">
+        <div class="emoji"
+             th:text="${correctas == total ? '🏆' : correctas >= total / 2 ? '👍' : '📚'}"></div>
+        <div class="puntaje" th:text="${correctas} + '/' + ${total}"></div>
+        <div class="sub"
+             th:text="${correctas == total ? '¡Perfecto! ¡Sin errores!' :
+                   correctas >= total / 2 ? '¡Buen trabajo! Sigue practicando.' :
+                   'Inténtalo de nuevo, tú puedes.'}"></div>
+        <form action="/iniciar" method="post" style="display:inline;">
+            <input type="hidden" name="modo" th:value="${modo}"/>
+            <input type="hidden" name="nivel" th:value="${nivel}"/>
+            <button type="submit" class="btn-reiniciar">🔄 Otra ronda</button>
+        </form>
+        <a href="/" class="btn-menu">🏠 Menú</a>
+    </div>
+
+    <!-- PREGUNTA ACTIVA -->
+    <div th:if="${!finalizado}">
+        <div th:classappend="${mensaje.contains('Correcto') ? 'correcto' : (mensaje.isEmpty() ? 'vacio' : 'incorrecto')}"
+             class="mensaje"
+             th:text="${mensaje.isEmpty() ? '¡Selecciona la respuesta correcta!' : mensaje}">
+        </div>
+
+        <form action="/responder" method="post">
+            <div class="pregunta" th:text="${pregunta.enunciado}"></div>
+            <div class="opciones">
+                <button th:each="opcion : ${pregunta.opciones}"
+                        type="submit"
+                        name="respuestaUsuario"
+                        th:value="${opcion}"
+                        th:text="${opcion}">
+                </button>
+            </div>
+            <input type="hidden" name="respuestaCorrecta" th:value="${pregunta.respuesta}"/>
+        </form>
+    </div>
+
+    <div class="cambiar-modo">
+        <a href="/">← Cambiar modo</a>
+    </div>
+
+</div>
+
+<script>
+    const simbolos = ['+','1','2','3','4','5','6','7','8','9','−', '×', '÷', '=', '%', '²', '³', '√', 'π', '∑', '∞', '≠', '≈', 'x', 'y'];
+    const bg = document.getElementById('bg');
+    for (let i = 0; i < 30; i++) {
+      const span = document.createElement('span');
+      span.className = 'symbol';
+      span.textContent = simbolos[Math.floor(Math.random() * simbolos.length)];
+      span.style.left     = Math.random() * 100 + 'vw';
+      span.style.fontSize = (14 + Math.random() * 24) + 'px';
+      span.style.animationDuration = (12 + Math.random() * 18) + 's';
+      span.style.animationDelay   = (-Math.random() * 20) + 's';
+      bg.appendChild(span);
+    }
+</script>
+
+<script th:if="${tiempo > 0}" th:inline="javascript">
+    const TIEMPO = [[${tiempo}]];
+    const FINALIZADO = [[${finalizado}]];
+    let segundos = TIEMPO;
+
+    function iniciarCronometro() {
+      // Si la ronda ya terminó no inicia el cronómetro
+      if (FINALIZADO) return;
+
+      const display = document.getElementById('cronometro');
+      if (!display) return;
+      display.textContent = segundos;
+
+      const intervalo = setInterval(() => {
+        segundos--;
+        display.textContent = segundos;
+
+        if (segundos <= 5) {
+          display.style.color = '#e57373';
+        } else if (segundos <= 10) {
+          display.style.color = '#ffd54f';
+        }
+
+        if (segundos <= 0) {
+          clearInterval(intervalo);
+          const form = document.querySelector('form[action="/responder"]');
+          if (form) {
+            const input = document.createElement('input');
+            input.type  = 'hidden';
+            input.name  = 'respuestaUsuario';
+            input.value = '__tiempo_agotado__';
+            form.appendChild(input);
+            form.submit();
+          }
+        }
+      }, 1000);
+    }
+
+    iniciarCronometro();
+</script>
+
+</body>
+</html>

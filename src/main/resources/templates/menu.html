@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Quiz de Matemáticas</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          font-family: 'Segoe UI', sans-serif;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          background: #1a1a2e;
+          overflow: hidden;
+        }
+
+        .bg-symbols {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
+        }
+
+        .symbol {
+          position: absolute;
+          color: rgba(0,255,255,0.5);
+          text-shadow: 0 0 10px cyan;
+          animation: flotar linear infinite;
+          user-select: none;
+        }
+
+        @keyframes flotar {
+          0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .card {
+          position: relative;
+          z-index: 1;
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 24px;
+          padding: 1.5rem;
+          max-width: 500px;
+          width: 100%;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+          text-align: center;
+        }
+
+        h1 { font-size: 22px; color: #fff; margin-bottom: 3px; font-weight: 700; }
+        .subtitulo { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
+
+        .paso-titulo {
+          font-size: 10px;
+          color: rgba(255,255,255,0.35);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-bottom: 8px;
+        }
+
+        .separador {
+          border: none;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          margin: 0.8rem 0;
+        }
+
+        /* ── Modos ── */
+        .modos {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 0.8rem;
+        }
+
+        .modo-btn {
+          background: rgba(255,255,255,0.06);
+          border: 1.5px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 0.8rem 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+          width: 100%;
+          color: white;
+        }
+
+        .modo-btn:hover, .modo-btn.selected {
+          background: rgba(102,126,234,0.3);
+          border-color: rgba(102,126,234,0.6);
+          transform: translateY(-2px);
+        }
+
+        .modo-btn .icono  { font-size: 24px; margin-bottom: 4px; }
+        .modo-btn .nombre { font-size: 12px; font-weight: 700; }
+        .modo-btn .desc   { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; line-height: 1.3; }
+
+        /* ── Niveles ── */
+        .niveles {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 0.8rem;
+        }
+
+        .nivel-btn {
+          border-radius: 12px;
+          padding: 0.8rem 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+          width: 100%;
+          color: white;
+          border: 1.5px solid transparent;
+        }
+
+        .nivel-btn .icono  { font-size: 22px; margin-bottom: 4px; }
+        .nivel-btn .nombre { font-size: 12px; font-weight: 700; }
+        .nivel-btn .desc   { font-size: 10px; margin-top: 2px; opacity: 0.6; }
+
+        .nivel-facil { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.25); }
+        .nivel-facil:hover, .nivel-facil.selected { background: rgba(76,175,80,0.3); border-color: #4caf50; transform: translateY(-2px); }
+
+        .nivel-intermedio { background: rgba(255,193,7,0.12); border-color: rgba(255,193,7,0.25); }
+        .nivel-intermedio:hover, .nivel-intermedio.selected { background: rgba(255,193,7,0.3); border-color: #ffc107; transform: translateY(-2px); }
+
+        .nivel-leyenda { background: rgba(244,67,54,0.12); border-color: rgba(244,67,54,0.25); }
+        .nivel-leyenda:hover, .nivel-leyenda.selected { background: rgba(244,67,54,0.3); border-color: #f44336; transform: translateY(-2px); }
+
+        /* ── Fila inferior: tiempo + botón ── */
+        .fila-inferior {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin-top: 0.8rem;
+        }
+
+        .tiempo-toggle {
+          display: flex;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .toggle-btn {
+          padding: 10px 14px;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.5);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+
+        .toggle-btn.selected {
+          background: rgba(102,126,234,0.4);
+          color: white;
+        }
+
+        .btn-iniciar {
+          flex: 1;
+          padding: 12px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: opacity 0.2s;
+          opacity: 0.4;
+          pointer-events: none;
+        }
+
+        .btn-iniciar.activo {
+          opacity: 1;
+          pointer-events: all;
+        }
+
+        .btn-iniciar:hover { opacity: 0.85; }
+
+        /* ── Modal de tiempo ── */
+        .modal-overlay {
+          display: none;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: rgba(0,0,0,0.6);
+          z-index: 100;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-overlay.visible { display: flex; }
+
+        .modal {
+          background: #1e1e3a;
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 20px;
+          padding: 1.5rem;
+          max-width: 340px;
+          width: 90%;
+          text-align: center;
+          animation: aparecer 0.25s ease;
+        }
+
+        @keyframes aparecer {
+          from { opacity: 0; transform: scale(0.9); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+
+        .modal h3 { color: #fff; font-size: 16px; margin-bottom: 1rem; }
+
+        .opciones-tiempo {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 1rem;
+        }
+
+        .op-tiempo {
+          background: rgba(255,255,255,0.06);
+          border: 1.5px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 1rem 0.5rem;
+          cursor: pointer;
+          color: white;
+          transition: all 0.2s;
+        }
+
+        .op-tiempo:hover, .op-tiempo.selected {
+          background: rgba(102,126,234,0.3);
+          border-color: #667eea;
+          transform: translateY(-2px);
+        }
+
+        .op-tiempo .icono  { font-size: 24px; margin-bottom: 6px; }
+        .op-tiempo .nombre { font-size: 12px; font-weight: 700; }
+        .op-tiempo .desc   { font-size: 10px; opacity: 0.5; margin-top: 3px; }
+
+        .btn-confirmar {
+          width: 100%;
+          padding: 11px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-symbols" id="bg"></div>
+
+<div class="card">
+    <h1>🧮 Quiz de Matemáticas</h1>
+    <p class="subtitulo">Elige tu modo y nivel de dificultad</p>
+
+    <form action="/iniciar" method="post" id="form-juego">
+        <input type="hidden" name="modo"  id="input-modo"  value=""/>
+        <input type="hidden" name="nivel" id="input-nivel" value=""/>
+        <input type="hidden" name="tiempo" id="input-tiempo" value="0"/>
+
+        <!-- PASO 1: Modo -->
+        <p class="paso-titulo">① Modo</p>
+        <div class="modos">
+            <button type="button" class="modo-btn" onclick="elegirModo('matematicas', this)">
+                <div class="icono">➕</div>
+                <div class="nombre">Matemáticas</div>
+                <div class="desc">Suma, resta,<br>multiplicación y más</div>
+            </button>
+            <button type="button" class="modo-btn" onclick="elegirModo('acertijos', this)">
+                <div class="icono">🧩</div>
+                <div class="nombre">Acertijos</div>
+                <div class="desc">Problemas y<br>retos de lógica</div>
+            </button>
+            <button type="button" class="modo-btn" onclick="elegirModo('secuencias', this)">
+                <div class="icono">🔢</div>
+                <div class="nombre">Secuencias</div>
+                <div class="desc">Encuentra el<br>número que sigue</div>
+            </button>
+            <button type="button" class="modo-btn" onclick="elegirModo('mixto', this)">
+                <div class="icono">🎲</div>
+                <div class="nombre">Modo Mixto</div>
+                <div class="desc">Mezcla de todo —<br>¡el más completo!</div>
+            </button>
+        </div>
+
+        <hr class="separador"/>
+
+        <!-- PASO 2: Nivel -->
+        <p class="paso-titulo">② Nivel</p>
+        <div class="niveles">
+            <button type="button" class="nivel-btn nivel-facil" onclick="elegirNivel('facil', this)">
+                <div class="icono">😊</div>
+                <div class="nombre">Fácil</div>
+                <div class="desc">Operaciones simples</div>
+            </button>
+            <button type="button" class="nivel-btn nivel-intermedio" onclick="elegirNivel('intermedio', this)">
+                <div class="icono">😮</div>
+                <div class="nombre">Intermedio</div>
+                <div class="desc">Mayor dificultad</div>
+            </button>
+            <button type="button" class="nivel-btn nivel-leyenda" onclick="elegirNivel('leyenda', this)">
+                <div class="icono">😈</div>
+                <div class="nombre">Leyenda</div>
+                <div class="desc">Solo los mejores</div>
+            </button>
+        </div>
+
+        <hr class="separador"/>
+
+        <!-- FILA INFERIOR: tiempo + botón -->
+        <div class="fila-inferior">
+            <div class="tiempo-toggle">
+                <button type="button" class="toggle-btn selected" onclick="sinTiempo(this)">🧘 Sin tiempo</button>
+                <button type="button" class="toggle-btn" onclick="abrirModal(this)">⏱ Con tiempo</button>
+            </div>
+            <button type="submit" class="btn-iniciar" id="btn-iniciar">
+                ¡Comenzar! →
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Modal de tiempo -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
+    <div class="modal">
+        <h3>⏱ ¿Cuánto tiempo por pregunta?</h3>
+        <div class="opciones-tiempo">
+            <button type="button" class="op-tiempo" onclick="elegirTiempo(30, this)">
+                <div class="icono">⏱</div>
+                <div class="nombre">30 seg</div>
+                <div class="desc">Relajado</div>
+            </button>
+            <button type="button" class="op-tiempo" onclick="elegirTiempo(15, this)">
+                <div class="icono">⚡</div>
+                <div class="nombre">15 seg</div>
+                <div class="desc">Normal</div>
+            </button>
+            <button type="button" class="op-tiempo" onclick="elegirTiempo(8, this)">
+                <div class="icono">💀</div>
+                <div class="nombre">8 seg</div>
+                <div class="desc">Extremo</div>
+            </button>
+        </div>
+        <button type="button" class="btn-confirmar" onclick="confirmarTiempo()">Confirmar →</button>
+    </div>
+</div>
+
+<script>
+    // Fondo animado
+    const simbolos = ['+','1','2','3','4','5','6','7','8','9','−', '×', '÷', '=', '%', '²', '³', '√', 'π', '∑', '∞', '≠', '≈', 'x', 'y'];
+    const bg = document.getElementById('bg');
+    for (let i = 0; i < 30; i++) {
+      const span = document.createElement('span');
+      span.className = 'symbol';
+      span.textContent = simbolos[Math.floor(Math.random() * simbolos.length)];
+      span.style.left             = Math.random() * 100 + 'vw';
+      span.style.fontSize         = (14 + Math.random() * 22) + 'px';
+      span.style.animationDuration = (10 + Math.random() * 20) + 's';
+      span.style.animationDelay   = (-Math.random() * 20) + 's';
+      bg.appendChild(span);
+    }
+
+    let modoOk        = false;
+    let nivelOk       = false;
+    let tiempoElegido = 0;
+
+    function elegirModo(modo, btn) {
+      document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('input-modo').value = modo;
+      modoOk = true;
+      verificar();
+    }
+
+    function elegirNivel(nivel, btn) {
+      document.querySelectorAll('.nivel-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('input-nivel').value = nivel;
+      nivelOk = true;
+      verificar();
+    }
+
+    function sinTiempo(btn) {
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      tiempoElegido = 0;
+      document.getElementById('input-tiempo').value = 0;
+    }
+
+    function abrirModal(btn) {
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      // Selecciona 30s por defecto si no hay ninguno elegido
+      if (tiempoElegido === 0) {
+        tiempoElegido = 30;
+        document.querySelectorAll('.op-tiempo')[0].classList.add('selected');
+      }
+      document.getElementById('input-tiempo').value = tiempoElegido;
+      document.getElementById('modal-overlay').classList.add('visible');
+    }
+
+    function cerrarModalFuera(e) {
+      if (e.target === document.getElementById('modal-overlay')) {
+        cerrarModal();
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-overlay').classList.remove('visible');
+    }
+
+    function elegirTiempo(tiempo, btn) {
+      document.querySelectorAll('.op-tiempo').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      tiempoElegido = tiempo;
+      document.getElementById('input-tiempo').value = tiempo;
+    }
+
+    function confirmarTiempo() {
+      document.getElementById('input-tiempo').value = tiempoElegido;
+      cerrarModal();
+    }
+
+    function verificar() {
+      const btn = document.getElementById('btn-iniciar');
+      if (modoOk && nivelOk) {
+        btn.classList.add('activo');
+      }
+    }
+</script>
+
+</body>
+</html>
