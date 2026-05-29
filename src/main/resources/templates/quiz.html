@@ -372,6 +372,30 @@
 
     iniciarCronometro();
 </script>
+<audio id="musica" loop autoplay>
+    <source src="/musica.mp3" type="audio/mpeg"/>
+</audio>
+
+<button onclick="toggleMusica()" id="btn-musica"
+        style="position:fixed; bottom:1rem; right:1rem; background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px;
+  font-size:18px; cursor:pointer; z-index:10;">
+    🔊
+</button>
+
+<script>
+    function toggleMusica() {
+      const audio = document.getElementById('musica');
+      const btn   = document.getElementById('btn-musica');
+      if (audio.paused) {
+        audio.play();
+        btn.textContent = '🔊';
+      } else {
+        audio.pause();
+        btn.textContent = '🔇';
+      }
+    }
+</script>
 
 </body>
 </html>

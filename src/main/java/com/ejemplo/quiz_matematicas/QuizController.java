@@ -130,10 +130,13 @@ public class QuizController {
         do {
             pregunta = GeneradorPreguntas.generar(modo, nivel);
             intentos++;
-        } while (usadas.contains(pregunta.getEnunciado()) && intentos < 30);
+        } while ((usadas.contains(pregunta.getEnunciado()) ||
+                HistorialPreguntas.fueUsada(pregunta.getEnunciado()))
+                && intentos < 30);
 
         usadas.add(pregunta.getEnunciado());
+        HistorialPreguntas.registrar(pregunta.getEnunciado());
         session.setAttribute("preguntasUsadas", usadas);
         return pregunta;
-    }
+        }
 }
