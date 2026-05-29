@@ -286,11 +286,7 @@
              th:text="${correctas == total ? '¡Perfecto! ¡Sin errores!' :
                    correctas >= total / 2 ? '¡Buen trabajo! Sigue practicando.' :
                    'Inténtalo de nuevo, tú puedes.'}"></div>
-        <form action="/iniciar" method="post" style="display:inline;">
-            <input type="hidden" name="modo" th:value="${modo}"/>
-            <input type="hidden" name="nivel" th:value="${nivel}"/>
-            <button type="submit" class="btn-reiniciar">🔄 Otra ronda</button>
-        </form>
+        <a href="/jugar" class="btn-reiniciar">🔄 Otra ronda</a>
         <a href="/" class="btn-menu">🏠 Menú</a>
     </div>
 

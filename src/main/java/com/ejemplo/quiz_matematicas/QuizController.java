@@ -1,18 +1,17 @@
 package com.ejemplo.quiz_matematicas;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Controller
 public class QuizController {
 
     private static final int TOTAL = 10;
-    private int respondidas = 0;
-    private int correctas   = 0;
-    private String modo     = "mixto";
-    private String nivel    = "facil";
-    private int tiempo      = 0;
 
     @GetMapping("/")
     public String inicio() {
@@ -23,19 +22,37 @@ public class QuizController {
     public String iniciar(@RequestParam String modo,
                           @RequestParam String nivel,
                           @RequestParam(defaultValue = "0") int tiempo,
-                          Model model) {
-        this.modo        = modo;
-        this.nivel       = nivel;
-        this.tiempo      = tiempo;
-        this.respondidas = 0;
-        this.correctas   = 0;
+                          HttpSession session) {
 
-        model.addAttribute("pregunta",       generarSinRepetir(modo, nivel));
+        // Reinicia el estado en la sesión del usuario
+        session.setAttribute("modo",             modo);
+        session.setAttribute("nivel",            nivel);
+        session.setAttribute("tiempo",           tiempo);
+        session.setAttribute("respondidas",      0);
+        session.setAttribute("correctas",        0);
+        session.setAttribute("preguntasUsadas",  new HashSet<String>());
+
+        return "redirect:/jugar";
+    }
+
+    @GetMapping("/jugar")
+    public String jugar(HttpSession session, Model model) {
+        String modo     = (String)  session.getAttribute("modo");
+        String nivel    = (String)  session.getAttribute("nivel");
+        int tiempo      = (int)     session.getAttribute("tiempo");
+        int respondidas = (int)     session.getAttribute("respondidas");
+        int correctas   = (int)     session.getAttribute("correctas");
+
+        if (modo == null) return "redirect:/";
+
+        Pregunta pregunta = generarSinRepetir(modo, nivel, session);
+
+        model.addAttribute("pregunta",       pregunta);
         model.addAttribute("mensaje",        "");
-        model.addAttribute("correctas",      0);
+        model.addAttribute("correctas",      correctas);
         model.addAttribute("incorrectas",    0);
         model.addAttribute("restantes",      TOTAL);
-        model.addAttribute("numeroPregunta", 1);
+        model.addAttribute("numeroPregunta", respondidas + 1);
         model.addAttribute("total",          TOTAL);
         model.addAttribute("progresoPct",    0);
         model.addAttribute("finalizado",     false);
@@ -48,21 +65,35 @@ public class QuizController {
     @PostMapping("/responder")
     public String responder(@RequestParam String respuestaUsuario,
                             @RequestParam String respuestaCorrecta,
-                            Model model) {
+                            HttpSession session, Model model) {
 
-        boolean esCorrecta = respuestaUsuario.equals(respuestaCorrecta)
-                && !respuestaUsuario.equals("__tiempo_agotado__");
+        String modo     = (String)  session.getAttribute("modo");
+        String nivel    = (String)  session.getAttribute("nivel");
+        int tiempo      = (int)     session.getAttribute("tiempo");
+        int respondidas = (int)     session.getAttribute("respondidas");
+        int correctas   = (int)     session.getAttribute("correctas");
+
+        if (modo == null) return "redirect:/";
+
+        // Evitar doble envío — si ya respondió todas no procesa más
+        if (respondidas >= TOTAL) return "redirect:/jugar";
+
+        boolean tiempoAgotado = respuestaUsuario.equals("__tiempo_agotado__");
+        boolean esCorrecta    = !tiempoAgotado && respuestaUsuario.equals(respuestaCorrecta);
 
         if (esCorrecta) correctas++;
         respondidas++;
 
+        session.setAttribute("respondidas", respondidas);
+        session.setAttribute("correctas",   correctas);
+
         boolean finalizado  = respondidas >= TOTAL;
         int incorrectas     = respondidas - correctas;
-        int restantes       = TOTAL - respondidas;
-        int progresoPct     = (respondidas * 100) / TOTAL;
+        int restantes       = Math.max(TOTAL - respondidas, 0);
+        int progresoPct     = Math.min((respondidas * 100) / TOTAL, 100);
         int numeroPregunta  = finalizado ? TOTAL : respondidas + 1;
 
-        String msg = respuestaUsuario.equals("__tiempo_agotado__")
+        String msg = tiempoAgotado
                 ? "⏰ ¡Tiempo agotado! La respuesta era: " + respuestaCorrecta
                 : esCorrecta
                 ? "✅ ¡Correcto!"
@@ -81,20 +112,28 @@ public class QuizController {
         model.addAttribute("tiempo",         tiempo);
 
         if (!finalizado) {
-            model.addAttribute("pregunta", generarSinRepetir(modo, nivel));
+            model.addAttribute("pregunta", generarSinRepetir(modo, nivel, session));
         }
         return "quiz";
     }
 
-    private Pregunta generarSinRepetir(String modo, String nivel) {
+    @SuppressWarnings("unchecked")
+    private Pregunta generarSinRepetir(String modo, String nivel, HttpSession session) {
+        Set<String> usadas = (Set<String>) session.getAttribute("preguntasUsadas");
+        if (usadas == null) {
+            usadas = new HashSet<>();
+            session.setAttribute("preguntasUsadas", usadas);
+        }
+
         Pregunta pregunta;
         int intentos = 0;
         do {
             pregunta = GeneradorPreguntas.generar(modo, nivel);
             intentos++;
-        } while (HistorialPreguntas.fueUsada(pregunta.getEnunciado()) && intentos < 30);
+        } while (usadas.contains(pregunta.getEnunciado()) && intentos < 30);
 
-        HistorialPreguntas.registrar(pregunta.getEnunciado());
+        usadas.add(pregunta.getEnunciado());
+        session.setAttribute("preguntasUsadas", usadas);
         return pregunta;
     }
 }
