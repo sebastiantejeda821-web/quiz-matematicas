@@ -370,67 +370,69 @@
       }, 1000);
     }
 
-  <button onclick="toggleMusica()" id="btn-musica"
-  style="position:fixed; bottom:1rem; right:1rem; background:rgba(255,255,255,0.1);
+    iniciarCronometro();
+</script>
+<button onclick="toggleMusica()" id="btn-musica"
+        style="position:fixed; bottom:1rem; right:1rem; background:rgba(255,255,255,0.1);
   border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px;
   font-size:18px; cursor:pointer; z-index:10;">
-  🔇
+    🔇
 </button>
 
 <audio id="musica" loop src="/musica.mp3"></audio>
 
 <script>
-  const audio  = document.getElementById('musica');
-  const btn    = document.getElementById('btn-musica');
-  let musicaActiva = localStorage.getItem('musicaActiva') !== 'no';
+    const audio  = document.getElementById('musica');
+    const btn    = document.getElementById('btn-musica');
+    let musicaActiva = localStorage.getItem('musicaActiva') !== 'no';
 
-  // Intenta reproducir al cargar
-  function iniciarMusica() {
-    if (musicaActiva) {
-      audio.play().then(() => {
-        btn.textContent = '🔊';
-      }).catch(() => {
-        // Bloqueado por el navegador — espera clic del usuario
+    // Intenta reproducir al cargar
+    function iniciarMusica() {
+      if (musicaActiva) {
+        audio.play().then(() => {
+          btn.textContent = '🔊';
+        }).catch(() => {
+          // Bloqueado por el navegador — espera clic del usuario
+          btn.textContent = '🔇';
+          document.addEventListener('click', function activar() {
+            if (musicaActiva) {
+              audio.play();
+              btn.textContent = '🔊';
+            }
+            document.removeEventListener('click', activar);
+          }, { once: true });
+        });
+      } else {
         btn.textContent = '🔇';
-        document.addEventListener('click', function activar() {
-          if (musicaActiva) {
-            audio.play();
-            btn.textContent = '🔊';
-          }
-          document.removeEventListener('click', activar);
-        }, { once: true });
-      });
-    } else {
-      btn.textContent = '🔇';
+      }
     }
-  }
 
-  function toggleMusica() {
-    if (audio.paused) {
-      audio.play();
-      btn.textContent = '🔊';
-      musicaActiva = true;
-      localStorage.setItem('musicaActiva', 'si');
-    } else {
-      audio.pause();
-      btn.textContent = '🔇';
-      musicaActiva = false;
-      localStorage.setItem('musicaActiva', 'no');
+    function toggleMusica() {
+      if (audio.paused) {
+        audio.play();
+        btn.textContent = '🔊';
+        musicaActiva = true;
+        localStorage.setItem('musicaActiva', 'si');
+      } else {
+        audio.pause();
+        btn.textContent = '🔇';
+        musicaActiva = false;
+        localStorage.setItem('musicaActiva', 'no');
+      }
     }
-  }
 
-  // Continúa desde donde iba
-  const tiempoGuardado = parseFloat(localStorage.getItem('musicaTiempo') || '0');
-  audio.currentTime = tiempoGuardado;
+    // Continúa desde donde iba
+    const tiempoGuardado = parseFloat(localStorage.getItem('musicaTiempo') || '0');
+    audio.currentTime = tiempoGuardado;
 
-  // Guarda el tiempo cada segundo
-  setInterval(() => {
-    if (!audio.paused) {
-      localStorage.setItem('musicaTiempo', audio.currentTime);
-    }
-  }, 1000);
+    // Guarda el tiempo cada segundo
+    setInterval(() => {
+      if (!audio.paused) {
+        localStorage.setItem('musicaTiempo', audio.currentTime);
+      }
+    }, 1000);
 
-  iniciarMusica();
+    iniciarMusica();
 </script>
 
 </body>
